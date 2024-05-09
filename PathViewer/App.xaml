@@ -2,8 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PathViewer"
-             StartupUri="MainWindow.xaml">
+             StartupUri="AppWindow/MainWindow.xaml">
     <Application.Resources>
+
+        <SolidColorBrush x:Key="DirItemForeground" Color="#FFCA9400"></SolidColorBrush>
 
         <DrawingImage x:Key="Directory_DrawingImage">
             <DrawingImage.Drawing>
@@ -28,7 +30,5 @@
             </DrawingImage.Drawing>
         </DrawingImage>
 
-        <SolidColorBrush x:Key="DirItemForeground" Color="#FFCA9400"></SolidColorBrush>
-        
     </Application.Resources>
 </Application>

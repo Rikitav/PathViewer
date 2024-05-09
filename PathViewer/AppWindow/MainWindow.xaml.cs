@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,32 +8,45 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PathViewer
+namespace PathViewer.AppWindow
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static readonly string[] Path_Directories = Environment.GetEnvironmentVariable("path").Split(";", StringSplitOptions.RemoveEmptyEntries);
-        private static readonly string[] Path_Extensions = Environment.GetEnvironmentVariable("pathext").Split(";", StringSplitOptions.RemoveEmptyEntries);
-        private CancellationTokenSource _cancelTokenSrc;
+        private static readonly string[] Path_Directories = Environment.GetEnvironmentVariable("path").Split(";", StringSplitOptions.RemoveEmptyEntries); // Directories
+        private static readonly string[] Path_Extensions = Environment.GetEnvironmentVariable("pathext").Split(";", StringSplitOptions.RemoveEmptyEntries); // File extensions
+        private CancellationTokenSource _cancelTokenSrc; // Async shet
 
+        /// <summary>
+        /// .ctor
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
-            ContentRendered += (_, _) => InitTree();
+            ContentRendered += (_, _) => InitTree(this, null);
         }
         
-        public async void InitTree()
+        /// <summary>
+        /// Init TreeView
+        /// </summary>
+        public void InitTree(object sender, RoutedEventArgs e)
         {
+            Label_PleaseWaitHint.Visibility = Visibility.Visible;
+            App_TreeView.Items.Clear();
+            this.UpdateLayout();
+
             ScanPathDirectories();
 
             Label_PleaseWaitHint.Visibility = Visibility.Hidden;
             App_FilterTextBox.IsEnabled = true;
-            await Task.Yield();
+            //await Task.Yield();
         }
 
+        /// <summary>
+        /// Scaning FieSystem for entries that matches PATH and PATHEXT variables
+        /// </summary>
         private void ScanPathDirectories()
         {
             ImageSource? DirImage = Application.Current.Resources["Directory_DrawingImage"] as ImageSource;
@@ -72,6 +81,9 @@ namespace PathViewer
             //Debug.WriteLine("Scanning end");
         }
 
+        /// <summary>
+        /// Filters whole TreeView by FilterWord. Hides items that doesnt match filter
+        /// </summary>
         private void FilterTreeView(string FilterWord)
         {
             // Async shet
@@ -112,12 +124,18 @@ namespace PathViewer
             }
         }
 
+        /// <summary>
+        /// Hides or shows TreeView item
+        /// </summary>
         private static void ChangeItemState(CustomTreeViewItem Item, bool State)
         {
             Item.Visibility = State ? Visibility.Visible : Visibility.Hidden;
             Item.Height = State ? double.NaN : 0;
         }
 
+        /// <summary>
+        /// FilterTextBox.Changed event handler
+        /// </summary>
         private async void FilterTextBox_Changed(object sender, TextChangedEventArgs e)
         {
             try
@@ -129,6 +147,14 @@ namespace PathViewer
             {
                 await Task.Yield();
             }
+        }
+
+        private void ShowVariablesButton_Click(object sender, RoutedEventArgs e)
+        {
+            string ShowVarText = string.Format(
+                "PATH file extension :\n{0}\n\nPATH scan directories :\n{1}",
+                string.Join("\n", Path_Extensions), string.Join("\n", Path_Directories));
+            MessageBox.Show(ShowVarText);
         }
 
         /// <summary>
